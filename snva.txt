@@ -1,0 +1,86 @@
+ /*Write a progrram to pass a String and a Integer number in a method and return a String : 
+
+	 Input String			Input Integer		Output String
+
+	"aaaabbbbababbb"			2				"aabbababb"
+	"aabbaaababb"			3				"aabbaaababb"
+	"aabbaabaa"				1				"ababa"
+*/
+
+import java.util.*;
+public class Main(){
+    public static void main(String args[]){
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter the input String");
+        String inputString = sc.nextLine();
+        System.out.println("Enter the input Integer");
+        int n = sc.nextInt();
+        StringBuilder sb = new StringBuilder();
+        int count = 1;
+        for(int i =1; i<sb.length();i++){
+           if(sb.charAt(i)== sb.charAt(i-1)){
+            count++;
+            if(count==n){
+                sb.delete(i-(n-1),i+1);
+                i=i-n+1;
+                count=1;
+            }else{
+                count=1;
+            }
+           }
+           System.out.println("Output:" + sb.toString);
+        }
+    }
+}
+
+/*Q3) Print the given patern
+
+*
+* *
+* * *
+* * * * 
+* * *	* * 
+* * * * 
+* * *
+* *
+*
+*/
+
+class Pattern{
+    public static void main(String args[]){
+        int n=5;
+        for(int i=1;i<=n;i++){
+             for(int j=1;j<=i;i++){
+                System.out.println(" * ");
+             }
+             System.out.println();
+        }
+         for(int i=n-1;i>=1;i--){
+            for(int j=1;j<=1;j++){
+                System.out.println(" * ");
+            }
+         }
+        System.out.println();
+    }
+}
+
+/*  ==API : https://dummyjson.com/products
+
+==Configure Database : Mysql
+	
+a) Create CRUD operation Rest API(Add, Fetch, Update, Delete)
+b) Retrieve the data from the above API and save into the database
+c) Create an API to get the data from the database with pagination. ilter on given fields : title, brand, category, price(between min and max), stock(between min and max) */
+class Product{
+    String title;
+    String brand;
+    String category;
+    int Price;
+}
+Post /products
+{
+    title :" "
+    brand :" "
+    category :" "
+    Price :" "
+}
