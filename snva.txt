@@ -33,6 +33,8 @@ public class Main(){
     }
 }
 
+-------------------------------------------------------------------------------------
+
 /*Q3) Print the given patern
 
 *
@@ -64,23 +66,114 @@ class Pattern{
     }
 }
 
-/*  ==API : https://dummyjson.com/products
+-------------------------------------------------------------------------------------------------
+
+Q.1  /*  ==API : https://dummyjson.com/products
 
 ==Configure Database : Mysql
 	
 a) Create CRUD operation Rest API(Add, Fetch, Update, Delete)
 b) Retrieve the data from the above API and save into the database
 c) Create an API to get the data from the database with pagination. ilter on given fields : title, brand, category, price(between min and max), stock(between min and max) */
-class Product{
-    String title;
-    String brand;
-    String category;
-    int Price;
+
+
+@Entity
+@Table(name = "products")
+public class Product {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String title;
+    private String brand;
+    private String category;
+    private int price;
+    private int stock;
+
+
 }
-Post /products
-{
-    title :" "
-    brand :" "
-    category :" "
-    Price :" "
+public interface ProductRepository extends JpaRepository<Product, Long> {
+    
+    List<Product> findByTitleContainingAndBrandContainingAndCategoryContainingAndPriceBetweenAndStockBetween(
+            String title, String brand, String category, int minPrice, int maxPrice, int minStock, int maxStock,
+            Pageable pageable);
 }
+
+@Service
+public class ProductService {
+
+    @Autowired
+    private ProductRepository productRepository;
+
+   
+    public Product addProduct(Product product) {
+        return productRepository.save(product);
+    }
+
+    public Product getProduct(Long id) {
+        return productRepository.findById(id).orElse(null);
+    }
+
+    public Product updateProduct(Long id, Product product) {
+        Product existingProduct = getProduct(id);
+        if (existingProduct != null) {
+            existingProduct.setTitle(product.getTitle());
+            existingProduct.setBrand(product.getBrand());
+            existingProduct.setCategory(product.getCategory());
+            existingProduct.setPrice(product.getPrice());
+            existingProduct.setStock(product.getStock());
+            return productRepository.save(existingProduct);
+        }
+        return null;
+    }
+
+    public void deleteProduct(Long id) {
+        productRepository.deleteById(id);
+    }
+
+   
+    public List<Product> getProducts(String title, String brand, String category, int minPrice, int maxPrice,
+            int minStock, int maxStock, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return productRepository.findByTitleContainingAndBrandContainingAndCategoryContainingAndPriceBetweenAndStockBetween(
+                title, brand, category, minPrice, maxPrice, minStock, maxStock, pageable);
+    }
+}
+
+@RestController
+@RequestMapping("/products")
+public class ProductController {
+    @Autowired
+    private ProductService productService;
+
+  
+    @PostMapping
+    public Product addProduct(@RequestBody Product product) {
+        return productService.addProduct(product);
+    }
+
+    @GetMapping("/{id}")
+    public Product getProduct(@PathVariable Long id) {
+        return productService.getProduct(id);
+    }
+
+    @PutMapping("/{id}")
+    public Product updateProduct(@PathVariable Long id, @RequestBody Product product) {
+        return productService.updateProduct(id, product);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteProduct(@PathVariable Long id) {
+        productService.deleteProduct(id);
+    }
+
+
+    @GetMapping
+    public ResponseEntity<List<Product>> getProducts(@RequestParam(required = false) String title,
+            @RequestParam(required = false) String brand, @RequestParam(required = false) String category,
+            @RequestParam(required = false, defaultValue = "0") int min_price,
+            @RequestParam(required = false, defaultValue = "999999") int max_price,
+            @RequestParam(required = false, defaultValue = "0") int min_stock,
+            @RequestParam(required = false, defaultValue = "999999") int max_stock,
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        List<Product> products = productService.getProducts(title, brand, category, min_price
